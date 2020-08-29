@@ -68,3 +68,19 @@ wget --no-check-certificate -O dnsmasq_sniproxy.sh https://raw.githubusercontent
 ---
 
 ___本脚本仅限解锁流媒体使用___
+
+## 防火墙只允许特定的ip
+
+```
+ip="x.x.x.x"
+nft flush ruleset
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT  #开启tcp 22端口的读
+iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+iptables -I INPUT -s ${ip} -p udp --dport 53 -j ACCEPT
+iptables -I INPUT -s ${ip} -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp --dport 8100 -j ACCEPT #开启tcp 8099端口的读
+iptables -A INPUT -p udp --dport 8100 -j ACCEPT #开启udp 8099端口的读
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT # 允许所以已建立连接（这个有点关键）
+iptables --policy INPUT DROP
+nft list ruleset
+```
